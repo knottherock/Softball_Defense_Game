@@ -131,7 +131,9 @@
 
     function generateFeedback(pos, hitTo, hitType, ps, ss, po, so) {
       if (pos === hitTo) {
-        if (ps.includes("Throw") && ss.includes("Cover")) {
+        if (ps.includes("Throw to Relay") || ps.includes("Setup as a Relay")) {
+          return "✅ Smart relay setup: You positioned for a longer throw or supported the outfield.";
+        } else if (ps.includes("Throw") && ss.includes("Cover")) {
           return "✅ Smart play: You fielded and ensured coverage.";
         } else if (ps.includes("Throw") && ss.includes("Backup")) {
           return "✅ Good throw, but consider covering a base for better field awareness.";
@@ -139,10 +141,12 @@
           return "⚠️ Consider refining your throw or coverage strategy.";
         }
       } else {
-        if (po.includes("Backup") && so.includes("Continue")) {
-          return "✅ Great awareness: You backed up and stayed engaged in the play.";
-        } else if (po.includes("Cutoff") && so.includes("Relay")) {
+        if (po.includes("Cutoff") && so.includes("Relay")) {
           return "✅ Excellent relay positioning after cutoff.";
+        } else if (po.includes("Backup") && so.includes("Continue")) {
+          return "✅ Great awareness: You backed up and stayed engaged in the play.";
+        } else if (po.includes("Cover") && so.includes("Move")) {
+          return "✅ Good coverage with follow-up movement.";
         } else {
           return "⚠️ You might want to anticipate movement and adjust your coverage.";
         }
@@ -158,6 +162,11 @@
       document.getElementById("summarySection").style.display = "none";
       document.getElementById("hitSection").style.display = "none";
       document.getElementById("hitResult").innerText = "";
+
+      // Reset dropdowns
+      ["primarySelf", "secondarySelf", "primaryOther", "secondaryOther"].forEach(id => {
+        document.getElementById(id).selectedIndex = 0;
+      });
     }
 
     function quitGame() {
@@ -169,4 +178,4 @@
   </script>
 
 </body>
-</html>
+</
