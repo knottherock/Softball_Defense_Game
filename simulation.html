@@ -4,17 +4,66 @@
   <meta charset="UTF-8" />
   <title>Softball Simulation</title>
   <style>
-    body { font-family: Arial; padding: 20px; background: #f0f0f0; }
-    .section { background: #fff; padding: 15px; margin-bottom: 20px; border-radius: 8px; }
-    select, button { width: 100%; margin-top: 10px; padding: 8px; }
+    body {
+      font-family: Arial;
+      padding: 20px;
+      background: #f0f0f0;
+    }
+    .section {
+      background: #fff;
+      padding: 15px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+    }
+    select, button {
+      width: 100%;
+      margin-top: 10px;
+      padding: 8px;
+    }
+    #gameStateText {
+      font-size: 1.4em;
+      font-weight: bold;
+      line-height: 1.8em;
+    }
+    #fieldDiagram {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-top: 20px;
+    }
+    .diamond {
+      position: relative;
+      width: 200px;
+      height: 200px;
+    }
+    .base {
+      position: absolute;
+      font-size: 1.5em;
+    }
+    #home { bottom: 0; left: 50%; transform: translateX(-50%); }
+    #first { bottom: 50%; right: 0; }
+    #second { top: 0; left: 50%; transform: translateX(-50%); }
+    #third { bottom: 50%; left: 0; }
   </style>
 </head>
 <body>
 
   <div class="section">
     <h2>🧾 Game Situation</h2>
-    <p id="gameStateText"></p>
+    <div id="gameStateText"></div>
     <button onclick="quitGame()">Return to Main Menu</button>
+  </div>
+
+  <div class="section">
+    <h2>🏟️ Field Diagram</h2>
+    <div id="fieldDiagram">
+      <div class="diamond">
+        <div id="home" class="base">🏠</div>
+        <div id="first" class="base">1️⃣</div>
+        <div id="second" class="base">2️⃣</div>
+        <div id="third" class="base">3️⃣</div>
+      </div>
+    </div>
   </div>
 
   <div class="section">
@@ -91,13 +140,30 @@
     const positions = ["P", "C", "1B", "2B", "SS", "3B", "LF", "CF", "RF"];
     const hitTypes = ["Grounder", "Line Drive", "Pop Fly"];
     let hitTo = "", hitType = "";
-    let gameState = { inning: 1, outs: 0, runners: [], score: { home: 0, away: 0 } };
+    let gameState = {
+      inning: 1,
+      outs: 0,
+      runners: ["first", "third"], // for testing; can be [] to start clean
+      score: { home: 0, away: 0 }
+    };
     const playerPos = localStorage.getItem("playerPosition");
 
     function updateGameState() {
       const { inning, outs, runners, score } = gameState;
-      document.getElementById("gameStateText").innerText =
-        `Inning: ${inning}, Outs: ${outs}, Runners on: ${runners.join(", ") || "None"}, Score: Home ${score.home} - Away ${score.away}`;
+      document.getElementById("gameStateText").innerHTML = `
+        🟢 Inning: ${inning}<br>
+        ⚾ Outs: ${outs} | Runners on: ${runners.join(", ") || "None"}<br>
+        🔢 Score: Home ${score.home} - Away ${score.away}
+      `;
+      updateFieldDiagram();
+    }
+
+    function updateFieldDiagram() {
+      const bases = { first: "1️⃣", second: "2️⃣", third: "3️⃣" };
+      ["first", "second", "third"].forEach(base => {
+        const el = document.getElementById(base);
+        el.innerText = gameState.runners.includes(base) ? "⚾" : bases[base];
+      });
     }
 
     function revealHit() {
@@ -129,53 +195,4 @@
       document.getElementById("summarySection").style.display = "block";
     }
 
-    function generateFeedback(pos, hitTo, hitType, ps, ss, po, so) {
-      if (pos === hitTo) {
-        if (ps.includes("Throw to Relay") || ps.includes("Setup as a Relay")) {
-          return "✅ Smart relay setup: You positioned for a longer throw or supported the outfield.";
-        } else if (ps.includes("Throw") && ss.includes("Cover")) {
-          return "✅ Smart play: You fielded and ensured coverage.";
-        } else if (ps.includes("Throw") && ss.includes("Backup")) {
-          return "✅ Good throw, but consider covering a base for better field awareness.";
-        } else {
-          return "⚠️ Consider refining your throw or coverage strategy.";
-        }
-      } else {
-        if (po.includes("Cutoff") && so.includes("Relay")) {
-          return "✅ Excellent relay positioning after cutoff.";
-        } else if (po.includes("Backup") && so.includes("Continue")) {
-          return "✅ Great awareness: You backed up and stayed engaged in the play.";
-        } else if (po.includes("Cover") && so.includes("Move")) {
-          return "✅ Good coverage with follow-up movement.";
-        } else {
-          return "⚠️ You might want to anticipate movement and adjust your coverage.";
-        }
-      }
-    }
-
-    function nextInning() {
-      gameState.inning += 1;
-      gameState.outs = 0;
-      gameState.runners = [];
-      gameState.score = { home: 0, away: 0 };
-      updateGameState();
-      document.getElementById("summarySection").style.display = "none";
-      document.getElementById("hitSection").style.display = "none";
-      document.getElementById("hitResult").innerText = "";
-
-      // Reset dropdowns
-      ["primarySelf", "secondarySelf", "primaryOther", "secondaryOther"].forEach(id => {
-        document.getElementById(id).selectedIndex = 0;
-      });
-    }
-
-    function quitGame() {
-      localStorage.removeItem("playerPosition");
-      window.location.href = "index.html";
-    }
-
-    updateGameState();
-  </script>
-
-</body>
-</
+    function generateFeedback(pos,
