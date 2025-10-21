@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Softball Defensive Game</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; background: #f0f0f0; }
+    select, button, textarea { margin: 10px 0; width: 100%; padding: 8px; }
+    .section { background: #fff; padding: 15px; margin-bottom: 20px; border-radius: 8px; }
+    h2 { margin-top: 0; }
+  </style>
+</head>
+<body>
+
+  <div class="section">
+    <h2>1️⃣ Choose Your Defensive Position</h2>
+    <select id="positionSelect">
+      <option value="">-- Select Position --</option>
+      <option value="P">Pitcher</option>
+      <option value="C">Catcher</option>
+      <option value="1B">First Base</option>
+      <option value="2B">Second Base</option>
+      <option value="SS">Shortstop</option>
+      <option value="3B">Third Base</option>
+      <option value="LF">Left Field</option>
+      <option value="CF">Center Field</option>
+      <option value="RF">Right Field</option>
+    </select>
+    <button onclick="simulateHit()">Simulate Hit</button>
+  </div>
+
+  <div class="section" id="gameState">
+    <h2>🧾 Game Situation</h2>
+    <p id="situationText"></p>
+  </div>
+
+  <div class="section" id="hitSection" style="display:none;">
+    <h2>2️⃣ Hit Simulation</h2>
+    <p id="hitResult"></p>
+    <h3>If ball is hit to YOU:</h3>
+    <textarea id="primarySelf" placeholder="Primary action (e.g., field ball, throw to 1B)"></textarea>
+    <textarea id="secondarySelf" placeholder="Secondary action (e.g., cover base, backup throw)"></textarea>
+
+    <h3>If ball is hit to ANOTHER position:</h3>
+    <textarea id="primaryOther" placeholder="Primary action (e.g., move to backup, cover base)"></textarea>
+    <textarea id="secondaryOther" placeholder="Secondary action (e.g., continue coverage, relay throw)"></textarea>
+
+    <button onclick="submitPlay()">Submit Play Decision</button>
+  </div>
+
+  <div class="section" id="summarySection" style="display:none;">
+    <h2>3️⃣ Your Defensive Strategy</h2>
+    <p id="summaryOutput"></p>
+    <h3>🧠 Feedback</h3>
+    <p id="feedbackOutput"></p>
+  </div>
+
+  <script>
+    const positions = ["P", "C", "1B", "2B", "SS", "3B", "LF", "CF", "RF"];
+    const hitTypes = ["Grounder", "Line Drive", "Pop Fly"];
+    let gameState = {
+      inning: 3,
+      outs: 1,
+      runners: ["1B", "2B"],
+      score: { home: 2, away: 3 }
+    };
+    let hitTo = "";
+    let hitType = "";
+
+    function updateGameSituation() {
+      const { inning, outs, runners, score } = gameState;
+      document.getElementById("situationText").innerText =
+        `Inning: ${inning}, Outs: ${outs}, Runners on: ${runners.join(", ") || "None"}, Score: Home ${score.home} - Away ${score.away}`;
+    }
+
+    function simulateHit() {
+      const playerPos = document.getElementById("positionSelect").value;
+      if (!playerPos) return alert("Please select a position first.");
+
+      hitTo = positions[Math.floor(Math.random() * positions.length)];
+      hitType = hitTypes[Math.floor(Math.random() * hitTypes.length)];
+
+      document.getElementById("hitResult").innerText = `Ball hit to ${hitTo} (${hitType})`;
+      document.getElementById("hitSection").style.display = "block";
+      document.getElementById("summarySection").style.display = "none";
+    }
+
+    function submitPlay() {
+      const playerPos = document.getElementById("positionSelect").value;
+      const primarySelf = document.getElementById("primarySelf").value;
+      const secondarySelf = document.getElementById("secondarySelf").value;
+      const primaryOther = document.getElementById("primaryOther").value;
+      const secondaryOther = document.getElementById("secondaryOther").value;
+
+      const summary = `
+        <strong>Position:</strong> ${playerPos}<br>
+        <strong>Hit:</strong> Ball hit to ${hitTo} (${hitType})<br><br>
+        <strong>➡ If ball is hit to YOU:</strong><br>
+        Primary: ${primarySelf}<br>
+        Secondary: ${secondarySelf}<br><br>
+        <strong>➡ If ball is hit to ANOTHER:</strong><br>
+        Primary: ${primaryOther}<br>
+        Secondary: ${secondaryOther}
+      `;
+      document.getElementById("summaryOutput").innerHTML = summary;
+
+      const feedback = generateFeedback(playerPos, hitTo, hitType, primarySelf, secondarySelf, primaryOther, secondaryOther);
+      document.getElementById("feedbackOutput").innerText = feedback;
+
+      document.getElementById("summarySection").style.display = "block";
+    }
+
+    function generateFeedback(pos, hitTo, hitType, ps, ss, po, so) {
+      if (pos === hitTo) {
+        if (ps.toLowerCase().includes("throw") && ss.toLowerCase().includes("cover")) {
+          return "✅ Solid play: You fielded the ball and ensured base coverage. Smart secondary move.";
+        } else {
+          return "⚠️ Consider refining your throw or coverage strategy for better field efficiency.";
+        }
+      } else {
+        if (po.toLowerCase().includes("backup") && so.toLowerCase().includes("cover")) {
+          return "✅ Great awareness: You backed up the play and covered the vacated base.";
+        } else {
+          return "⚠️ You might want to anticipate the movement of other fielders and adjust your coverage.";
+        }
+      }
+    }
+
+    updateGameSituation();
+  </script>
+
+</body>
+</html>
