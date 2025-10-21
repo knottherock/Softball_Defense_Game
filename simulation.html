@@ -149,14 +149,14 @@
     const playerPos = localStorage.getItem("playerPosition");
 
     function updateGameState() {
-      const { inning, outs, runners, score } = gameState;
-      document.getElementById("gameStateText").innerHTML = `
-        🟢 Inning: ${inning}<br>
-        ⚾ Outs: ${outs} | Runners on: ${runners.join(", ") || "None"}<br>
-        🔢 Score: Home ${score.home} - Away ${score.away}
-      `;
-      updateFieldDiagram();
-    }
+  const { inning, outs, runners } = gameState;
+  document.getElementById("gameStateText").innerHTML = `
+    🟢 <span style="font-size:1.2em;">Inning:</span> ${inning}<br>
+    ⚾ <span style="font-size:1.2em;">Outs:</span> ${outs}<br>
+    🚧 <span style="font-size:1.2em;">Runners on:</span> ${runners.join(", ") || "None"}
+  `;
+  updateFieldDiagram();
+}
 
     function updateFieldDiagram() {
       const bases = { first: "1️⃣", second: "2️⃣", third: "3️⃣" };
